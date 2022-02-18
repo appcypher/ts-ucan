@@ -1,9 +1,11 @@
 import * as did from "./did"
 import * as uint8arrays from "uint8arrays"
+
 import * as util from "./util"
 import { handleCompatibility } from "./compatibility"
 import { verifySignatureUtf8 } from "./did/validation"
-import { Capability, Fact, Keypair, KeyType } from "./types"
+import { Capability } from "./capability"
+import { Fact, Keypair, KeyType } from "./types"
 import { Ucan, UcanHeader, UcanPayload } from "./types"
 
 
@@ -11,7 +13,7 @@ import { Ucan, UcanHeader, UcanPayload } from "./types"
 
 
 const TYPE = "JWT"
-const VERSION = "0.7.0"
+const VERSION = "0.8.1"
 
 
 
@@ -29,6 +31,7 @@ const VERSION = "0.7.0"
  *
  * ### Payload
  *
+ * `att`, Attenuation, a list of resources and capabilities that the ucan grants.
  * `aud`, Audience, the ID of who it's intended for.
  * `exp`, Expiry, unix timestamp of when the jwt is no longer valid.
  * `fct`, Facts, an array of extra facts or information to attach to the jwt.
@@ -36,7 +39,6 @@ const VERSION = "0.7.0"
  * `nbf`, Not Before, unix timestamp of when the jwt becomes valid.
  * `nnc`, Nonce, a randomly generated string, used to ensure the uniqueness of the jwt.
  * `prf`, Proofs, nested tokens with equal or greater privileges.
- * `att`, Attenuation, a list of resources and capabilities that the ucan grants.
  *
  */
 export async function build(params: {
@@ -95,6 +97,10 @@ export function buildPayload(params: {
     proofs = [],
     addNonce = false
   } = params
+
+  // Validate
+  if (!issuer.startsWith("did:")) throw new Error("The issuer must be a DID")
+  if (!audience.startsWith("did:")) throw new Error("The audience must be a DID")
 
   // Timestamps
   const currentTimeInSeconds = Math.floor(Date.now() / 1000)
@@ -177,16 +183,17 @@ export function encode(ucan: Ucan): string {
   const encodedPayload = encodePayload(ucan.payload)
 
   return encodedHeader + "." +
-         encodedPayload + "." +
-         ucan.signature
+    encodedPayload + "." +
+    ucan.signature
 }
 
 /**
  * Encode the header of a UCAN.
  *
  * @param header The UcanHeader to encode
+ * @returns The header of a UCAN encoded as url-safe base64 JSON
  */
- export function encodeHeader(header: UcanHeader): string {
+export function encodeHeader(header: UcanHeader): string {
   return uint8arrays.toString(uint8arrays.fromString(JSON.stringify(header), "utf8"), "base64url")
 }
 
@@ -309,6 +316,11 @@ export async function validate(encodedUcan: string, options?: ValidateOptions): 
   if (checkIsTooEarly && isTooEarly(ucan)) {
     throw new Error(`Invalid UCAN: ${encodedUcan}: Not active yet (too early).`)
   }
+
+  // TODO:
+  // Check capabilities?
+  // 5.3 Witness Chaining
+  // 5.4 Rights Amplification
 
   return ucan
 }
