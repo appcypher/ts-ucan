@@ -6,9 +6,10 @@ import * as util from "../util"
 
 
 export type ResourcePointer = {
-  scheme: string,
+  scheme: string
   hierPart: Superuser | string
 }
+
 export const SEPARATOR: string = ":"
 
 

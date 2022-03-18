@@ -7,7 +7,7 @@ import * as util from "../util"
 
 export type Ability
   = Superuser
-  | { namespace: string, segments: string[] }
+  | { namespace: string; segments: string[] }
 
 export const SEPARATOR: string = "/"
 
@@ -75,8 +75,9 @@ export function parse(ability: string): Ability {
   switch (ability) {
     case SUPERUSER:
       return SUPERUSER
-    default:
+    default: {
       const [ namespace, ...segments ] = ability.split(SEPARATOR)
       return { namespace, segments }
+    }
   }
 }

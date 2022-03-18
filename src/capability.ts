@@ -23,7 +23,7 @@ export type Capability = {
 }
 
 export type EncodedCapability = {
-  with: string,
+  with: string
   can: string
 }
 

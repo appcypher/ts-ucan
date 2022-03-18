@@ -1,5 +1,5 @@
 import { Ability, isAbility } from "../../src/capability/ability"
-import { Capability, abilities } from "../../src/capability"
+import { Capability } from "../../src/capability"
 import { CapabilityEscalation, CapabilitySemantics, capabilities } from "../../src/attenuation"
 import { Chained } from "../../src/chained"
 import { SUPERUSER } from "../../src/capability/super-user"
@@ -21,7 +21,7 @@ export function isWnfsCap(cap: Capability): boolean {
   return cap.with.scheme === "wnfs" && isWnfsAbility(cap.can)
 }
 
-export function isWnfsAbility(ability: any): ability is WnfsAbility {
+export function isWnfsAbility(ability: unknown): ability is WnfsAbility {
   if (!isAbility(ability)) return false
   if (ability === SUPERUSER) return true
   const abilitySegment = ability.segments[ 0 ]
