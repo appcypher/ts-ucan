@@ -317,11 +317,6 @@ export async function validate(encodedUcan: string, options?: ValidateOptions): 
     throw new Error(`Invalid UCAN: ${encodedUcan}: Not active yet (too early).`)
   }
 
-  // TODO:
-  // Check capabilities?
-  // 5.3 Witness Chaining
-  // 5.4 Rights Amplification
-
   return ucan
 }
 
