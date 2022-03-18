@@ -73,9 +73,11 @@ export type BuildParams = {
 ```ts
 {
   // `with` is a resource pointer in the form of a URI, which has a `scheme` and `hierPart`.
+  // → "mailto:boris@fission.codes"
   with: { scheme: "mailto", hierPart: "boris@fission.codes" },
 
-  // `can` is an ability, which always has a namespace and several parts.
+  // `can` is an ability, which always has a namespace and optional parts.
+  // → "msg/SEND"
   can: { namespace: "msg", segments: [ "SEND" ] }
 }
 ```
