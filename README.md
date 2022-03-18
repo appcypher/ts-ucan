@@ -50,32 +50,33 @@ Read more in the whitepaper: https://whitepaper.fission.codes/access-control/uca
 Use `ucan.build` to help in formatting and signing a ucan. It takes the following parameters
 ```ts
 export type BuildParams = {
-  // to/from
-  audience: string
+  // from/to
   issuer: Keypair
+  audience: string
 
   // capabilities
-  capabilities: Array<Capability>
+  capabilities?: Array<Capability>
 
   // time bounds
   lifetimeInSeconds?: number // expiration overrides lifetimeInSeconds
   expiration?: number
   notBefore?: number
 
-  // proof / other info
+  // proofs / other info
   facts?: Array<Fact>
-  proof?: string
-
-  // in the weeds
-  ucanVersion?: string
+  proofs?: Array<string>
+  addNonce?: boolean
 }
 ```
 ### Capabilities
-`capabilities` is an array of resources and permission level formatted as:
+`capabilities` is an array of resource pointers and abilities:
 ```ts
 {
-  $TYPE: $IDENTIFIER,
-  "cap": $CAPABILITY
+  // `with` is a resource pointer in the form of a URI, which has a `scheme` and `hierPart`.
+  with: { scheme: "mailto", hierPart: "boris@fission.codes" },
+
+  // `can` is an ability, which always has a namespace and several parts.
+  can: { namespace: "msg", segments: [ "SEND" ] }
 }
 ```
 
@@ -100,20 +101,20 @@ import * as ucan from 'ucans'
 // in-memory keypair
 const keypair = await ucan.EdKeypair.create()
 const u = await ucan.build({
-  audience: "did:key:zabcde...", //recipient DID
-  issuer: keypair, //signing key
+  audience: "did:key:zabcde...", // recipient DID
+  issuer: keypair, // signing key
   capabilities: [ // permissions for ucan
     {
-      "wnfs": "boris.fission.name/public/photos/",
-      "cap": "OVERWRITE"
+      with: { scheme: "wnfs", hierPart: "//boris.fission.name/public/photos/" },
+      can: { namespace: "wnfs", segments: [ "OVERWRITE" ] }
     },
     {
-      "wnfs": "boris.fission.name/private/4tZA6S61BSXygmJGGW885odfQwpnR2UgmCaS5CfCuWtEKQdtkRnvKVdZ4q6wBXYTjhewomJWPL2ui3hJqaSodFnKyWiPZWLwzp1h7wLtaVBQqSW4ZFgyYaJScVkBs32BThn6BZBJTmayeoA9hm8XrhTX4CGX5CVCwqvEUvHTSzAwdaR",
-      "cap": "APPEND"
+      with: { scheme: "wnfs", hierPart: "//boris.fission.name/private/4tZA6S61BSXygmJGGW885odfQwpnR2UgmCaS5CfCuWtEKQdtkRnvKVdZ4q6wBXYTjhewomJWPL2ui3hJqaSodFnKyWiPZWLwzp1h7wLtaVBQqSW4ZFgyYaJScVkBs32BThn6BZBJTmayeoA9hm8XrhTX4CGX5CVCwqvEUvHTSzAwdaR" },
+      can: { namespace: "wnfs", segments: [ "APPEND" ] }
     },
     {
-      "email": "boris@fission.codes",
-      "cap": "SEND"
+      with: { scheme: "mailto", hierPart: "boris@fission.codes" },
+      can: { namespace: "wnfs", segments: [ "SEND" ] }
     }
   ]
 })
